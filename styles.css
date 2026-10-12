@@ -45,3 +45,11 @@
 @media(max-width:680px){
 	.social-preview{min-height:0}
 }
+
+@media(max-width:680px){
+	.site-header .brand{gap:8px;max-width:calc(100% - 54px)}
+	.site-header .brand-logos{gap:4px}
+	.site-header .brand-logo{display:block;width:24px;height:24px}
+	.site-header .brand b{font-size:13px}
+	.site-header .brand small{letter-spacing:2px}
+}

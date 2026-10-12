@@ -36,7 +36,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const onlineNav = document.querySelector(".nav");
-  const giveLink = onlineNav && onlineNav.querySelector('a[href="give.html"]');
+  const normalizePath = (href) => {
+    try {
+      const url = new URL(href, window.location.origin);
+      const path = url.pathname.replace(/\/+$/, "") || "/";
+      return path;
+    } catch {
+      return href;
+    }
+  };
+
+  const linkMatches = (anchor, route) => {
+    const path = normalizePath(anchor.getAttribute("href") || "");
+    if (route === "/") return path === "/" || path === "/index" || path === "/index.html";
+    return path === `/${route}` || path === `/${route}.html`;
+  };
+
+  const giveLink = onlineNav && [...onlineNav.querySelectorAll("a")].find((node) => linkMatches(node, "give"));
   if (giveLink) {
     giveLink.classList.add("giving-nav-icon");
     if (!giveLink.querySelector("svg")) {
@@ -45,38 +61,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const desiredOrder = [
-    { href: "index.html", label: "Home" },
-    { href: "ministries.html", label: "Ministries" },
-    { href: "church-online.html", label: "Church Online" },
-    { href: "events.html", label: "Events" },
-    { href: "about.html", label: "About Us" },
-    { href: "social.html", label: "Social Media" },
-    { href: "give.html", label: "Give" }
+    { href: "/", route: "/", label: "Home" },
+    { href: "ministries", route: "ministries", label: "Ministries" },
+    { href: "church-online", route: "church-online", label: "Church Online" },
+    { href: "events", route: "events", label: "Events" },
+    { href: "about", route: "about", label: "About Us" },
+    { href: "social", route: "social", label: "Social Media" },
+    { href: "give", route: "give", label: "Give" }
   ];
 
-  desiredOrder.forEach(({ href, label }) => {
-    const exactLink = onlineNav && onlineNav.querySelector(`a[href="${href}"]`);
+  desiredOrder.forEach(({ href, route, label }) => {
+    const exactLink = onlineNav && [...onlineNav.querySelectorAll("a")].find((node) => linkMatches(node, route));
     if (!onlineNav) return;
     if (exactLink) return;
 
     const link = document.createElement("a");
     link.href = href;
     link.textContent = label;
-    if (href === "give.html") {
+    if (route === "give") {
       link.className = "giving-nav-icon";
       link.setAttribute("aria-label", "Give online");
       link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5A4.5 4.5 0 0 1 6.5 4c1.74 0 3.41.81 4.5 2.09A6.08 6.08 0 0 1 15.5 4 4.5 4.5 0 0 1 20 8.5c0 3.78-3.4 6.86-8.55 11.5L12 21.35Z"/></svg><span>Give</span>';
     }
-    if (window.location.pathname.endsWith(href)) link.classList.add("active");
-    const contactLink = onlineNav.querySelector('a[href="contact.html"]');
+    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    if ((route === "/" && currentPath === "/") || (route !== "/" && (currentPath === `/${route}` || currentPath === `/${route}.html`))) {
+      link.classList.add("active");
+    }
+    const contactLink = [...onlineNav.querySelectorAll("a")].find((node) => linkMatches(node, "contact"));
     onlineNav.insertBefore(link, contactLink || null);
   });
 
   if (onlineNav) {
     const orderedNodes = [];
     const nodes = [...onlineNav.querySelectorAll("a")];
-    desiredOrder.forEach(({ href }) => {
-      const match = nodes.find((node) => (node.getAttribute("href") || "").split("?")[0].split("#")[0].endsWith(href));
+    desiredOrder.forEach(({ route }) => {
+      const match = nodes.find((node) => linkMatches(node, route));
       if (match) orderedNodes.push(match);
     });
 
@@ -86,9 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".footer-links").forEach((footerLinks) => {
-    if (!footerLinks.querySelector('a[href="social.html"]')) {
+    const hasSocial = [...footerLinks.querySelectorAll("a")].some((node) => linkMatches(node, "social"));
+    if (!hasSocial) {
       const socialLink = document.createElement("a");
-      socialLink.href = "social.html";
+      socialLink.href = "social";
       socialLink.textContent = "Social Media";
       footerLinks.appendChild(socialLink);
     }
