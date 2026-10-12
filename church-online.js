@@ -60,42 +60,15 @@
     document.body.appendChild(script);
   });
 
-  let supabaseClient;
-  const loadSupabase = () => new Promise((resolve, reject) => {
-    if (window.supabase) return resolve(window.supabase);
-    const library = document.createElement("script");
-    library.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-    library.onload = () => resolve(window.supabase);
-    library.onerror = reject;
-    document.head.appendChild(library);
-  });
-
-  document.getElementById("memberPortalButton")?.addEventListener("click", async () => {
-    const note = document.getElementById("portalNote");
-    if (!config.supabaseUrl || !config.supabaseAnonKey) { note.textContent = "Supabase project details are still required before secure sign-in can be enabled."; return; }
-    try {
-      if (!supabaseClient) {
-        const supabase = await loadSupabase();
-        supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-      }
-      const email = window.prompt("Enter your email address to receive a secure member sign-in link:");
-      if (!email) return;
-      const { error } = await supabaseClient.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
-      note.textContent = error ? error.message : "Check your email for your secure member sign-in link.";
-    } catch {
-      note.textContent = "Unable to connect to member sign-in right now. Please try again later.";
-    }
-  });
-
   const languageSwitch = document.getElementById("languageSwitch");
   if (languageSwitch) {
     languageSwitch.outerHTML = '<div class="language-switcher" aria-label="Choose language"><button type="button" data-language="en" class="active">English</button><button type="button" data-language="yo">Yorùbá</button></div>';
     const translations = {
       en: {
-        heroEyebrow: "RCCG OPEN HEAVENS ONLINE", heroTitle: "Church with you,<br><em>wherever you are.</em>", heroText: "Watch live, grow through the Word, share a prayer request, give securely, and stay connected with your church family.", watch: "Watch Live <span>→</span>", prayer: "Send a Prayer Request", liveEyebrow: '<span class="live-dot"></span> LIVE &amp; ON DEMAND', liveTitle: "Worship with us <em>online.</em>", sermonTitle: "Find a word for <em>today.</em>", devotionalTitle: "God is with you.", givingTitle: "Give with a<br><em>joyful heart.</em>", memberTitle: "Serve, connect, and<br><em>belong.</em>"
+        heroEyebrow: "RCCG OPEN HEAVENS ONLINE", heroTitle: "Church with you,<br><em>wherever you are.</em>", heroText: "Watch live, grow through the Word, share a prayer request, give securely, and stay connected with your church family.", watch: "Watch Live <span>→</span>", prayer: "Send a Prayer Request", liveEyebrow: '<span class="live-dot"></span> LIVE &amp; ON DEMAND', liveTitle: "Worship with us <em>online.</em>", sermonTitle: "Find a word for <em>today.</em>", devotionalTitle: "God is with you.", givingTitle: "Give with a<br><em>joyful heart.</em>"
       },
       yo: {
-        heroEyebrow: "RCCG OPEN HEAVENS LÓRÍ AYÉLÙJÁRÀ", heroTitle: "Ìjọ pẹ̀lú rẹ,<br><em>níbi gbogbo tí o wà.</em>", heroText: "Wo ìsìn wa láàyè, dàgbà nínú Ọ̀rọ̀ Ọlọ́run, fi ìbéèrè àdúrà ránṣẹ́, kí o sì máa bá ìdílé ìjọ rẹ pọ̀.", watch: "Wo Ìsìn Láàyè <span>→</span>", prayer: "Fi Ìbéèrè Àdúrà Ránṣẹ́", liveEyebrow: '<span class="live-dot"></span> ÌSÌN LÁÀYÈ', liveTitle: "Jọ́sìn pẹ̀lú wa <em>lórí ayélujára.</em>", sermonTitle: "Wá ọ̀rọ̀ fún <em>òní.</em>", devotionalTitle: "Ọlọ́run wà pẹ̀lú rẹ.", givingTitle: "Fúnni pẹ̀lú<br><em>ọkàn ayọ̀.</em>", memberTitle: "Sìn, sopọ̀, kí o sì<br><em>jẹ́ ọmọ ìdílé.</em>"
+        heroEyebrow: "RCCG OPEN HEAVENS LÓRÍ AYÉLÙJÁRÀ", heroTitle: "Ìjọ pẹ̀lú rẹ,<br><em>níbi gbogbo tí o wà.</em>", heroText: "Wo ìsìn wa láàyè, dàgbà nínú Ọ̀rọ̀ Ọlọ́run, fi ìbéèrè àdúrà ránṣẹ́, kí o sì máa bá ìdílé ìjọ rẹ pọ̀.", watch: "Wo Ìsìn Láàyè <span>→</span>", prayer: "Fi Ìbéèrè Àdúrà Ránṣẹ́", liveEyebrow: '<span class="live-dot"></span> ÌSÌN LÁÀYÈ', liveTitle: "Jọ́sìn pẹ̀lú wa <em>lórí ayélujára.</em>", sermonTitle: "Wá ọ̀rọ̀ fún <em>òní.</em>", devotionalTitle: "Ọlọ́run wà pẹ̀lú rẹ.", givingTitle: "Fúnni pẹ̀lú<br><em>ọkàn ayọ̀.</em>"
       }
     };
     const setText = (selector, content) => { const element = document.querySelector(selector); if (element) element.innerHTML = content; };
@@ -112,7 +85,6 @@
       setText("#sermons .section-title h2", copy.sermonTitle);
       setText("#devotionalTitle", copy.devotionalTitle);
       setText("#giving h2", copy.givingTitle);
-      setText("#members h2", copy.memberTitle);
       document.querySelectorAll("[data-language]").forEach((button) => button.classList.toggle("active", button.dataset.language === language));
       localStorage.setItem("church-language", language);
     };
